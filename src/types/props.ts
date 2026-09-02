@@ -36,7 +36,7 @@ export interface FileProps {
   check: checkHandler;
   checked: boolean;
   checkMode: boolean;
-  size: string;
+  size: number;
 }
 
 export interface DownloaderProps {

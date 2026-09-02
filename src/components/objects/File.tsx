@@ -2,12 +2,14 @@ import { memo, useCallback } from 'react';
 import type { ComponentType } from 'react';
 import { LongPressEventType, useLongPress } from 'use-long-press';
 import { CheckBox } from 'components/buttons';
+import { useImagePreview } from 'hooks';
 import styles from 'styles/Layouts.module.scss';
 import {
   FileIcon, TextFileIcon, ImageFileIcon, VideoFileIcon, AudioFileIcon,
   PdfFileIcon, WordFileIcon, ExcelFileIcon, PptFileIcon,
   ArchiveFileIcon, CodeFileIcon, FontFileIcon, DatabaseFileIcon,
 } from 'svg/icons';
+import { convUnit, fileExt } from 'utils/tools';
 import type { FileProps } from 'types/props';
 
 const EXT_ICON_MAP: Record<string, ComponentType> = {
@@ -50,8 +52,9 @@ const EXT_ICON_MAP: Record<string, ComponentType> = {
 };
 
 function File({ name, check, checked, checkMode, size }: FileProps) {
-  const ext = name.split('.').pop()?.toLowerCase() ?? '';
-  const IconComponent = EXT_ICON_MAP[ext] ?? FileIcon;
+  const IconComponent = EXT_ICON_MAP[fileExt(name)] ?? FileIcon;
+  const sizeText = convUnit(size);
+  const { ref, url, failPreview } = useImagePreview(name, size);
 
   const toggleCheck = useCallback(() => {
     check(name);
@@ -73,17 +76,20 @@ function File({ name, check, checked, checkMode, size }: FileProps) {
 
   return (
     <div>
-      <div className={`${styles.objectIcon} ${checked ? styles.checkedObjectIcon : ''} cursor-pointer`} onClick={e => clickFile(e.target)}>
+      <div ref={ref} className={`${styles.objectIcon} ${checked ? styles.checkedObjectIcon : ''} ${url ? styles.previewObjectIcon : ''} cursor-pointer`} onClick={e => clickFile(e.target)}>
         <CheckBox checked={checked} toggleCheck={toggleCheck} />
-        <div {...longPressBind()} className="grid place-items-center">
-          <IconComponent />
+        <div {...longPressBind()} className="grid place-items-center overflow-hidden">
+          { url
+            // eslint-disable-next-line @next/next/no-img-element -- blob object url이라 next/image 최적화 대상이 아님
+            ? <img src={url} alt={name} className={styles.objectImage} onError={failPreview} draggable={false} />
+            : <IconComponent /> }
         </div>
       </div>
       <div title={name} className={`${styles.objectName} mt-5`}>
         {name}
       </div>
-      <div title={size} className={`${styles.objectName} mt-2 text-neutral-400`}>
-        {size}
+      <div title={sizeText} className={`${styles.objectName} mt-2 text-neutral-400`}>
+        {sizeText}
       </div>
     </div>
   );

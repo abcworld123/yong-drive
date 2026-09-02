@@ -6,6 +6,10 @@ export function convUnit(size: number) {
   return res;
 }
 
+export function fileExt(name: string) {
+  return name.split('.').pop()?.toLowerCase() ?? '';
+}
+
 export function sleep(ms: number) {
   return new Promise<void>((resolve, reject) => {
     setTimeout(resolve, ms);

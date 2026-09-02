@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { File, Folder } from 'components/objects';
 import { useCheckBoxStore, useHomeStore } from 'hooks/stores';
 import styles from 'styles/Layouts.module.scss';
-import { convUnit } from 'utils/tools';
 import type { ObjectProps } from 'types/props';
 
 function Objects({ check, intoFolder }: ObjectProps) {
@@ -31,7 +30,7 @@ function Objects({ check, intoFolder }: ObjectProps) {
           check={check}
           checked={chkSet.has(name)}
           checkMode={checkMode}
-          size={convUnit(size)}
+          size={size}
         />,
       );
     }
