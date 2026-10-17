@@ -28,6 +28,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("tools.jackson.module:jackson-module-kotlin")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
@@ -42,6 +43,15 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// Used by run.sh to launch the app with plain `java`. The Boot plugin already adds developmentOnly
+// (DevTools) to runtimeClasspath; bootJar and nativeCompile use separate classpaths without it.
+tasks.register("printRuntimeClasspath") {
+    val classpath = sourceSets.main.get().runtimeClasspath
+    doLast {
+        println(classpath.asPath)
+    }
 }
 
 graalvmNative {
