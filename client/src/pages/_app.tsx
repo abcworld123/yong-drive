@@ -1,6 +1,5 @@
 import 'styles/tailwind.css';
 import 'styles/globals.scss';
-import { SHA256 } from 'crypto-js';
 import Head from 'next/head';
 import { useCallback, useEffect } from 'react';
 import Swal from 'sweetalert2';
@@ -8,6 +7,7 @@ import { useLayoutStore, useSessionStore } from 'hooks/stores';
 import Loader from 'svg/Loader';
 import { alertError, shakeOutsideClick } from 'utils/alerts';
 import api from 'utils/api';
+import { sha256Hex } from 'utils/hash';
 import type { AppProps } from 'next/app';
 import type { ResCheck, ResLogin } from 'types/apis';
 
@@ -28,9 +28,8 @@ function App({ Component, pageProps }: AppProps) {
       allowOutsideClick: shakeOutsideClick,
       preConfirm: async (pw: string) => {
         if (!pw.trim()) { Swal.showValidationMessage('비밀번호를 입력해주세요.'); return; }
-        pw = SHA256(pw.trim()).toString();
         try {
-          const { data } = await api.post<ResLogin>('/auth/login', { pw });
+          const { data } = await api.post<ResLogin>('/auth/login', { pw: await sha256Hex(pw.trim()) });
           if (!data.success) Swal.showValidationMessage('비밀번호가 일치하지 않습니다.');
           else useSessionStore.setState({ isLogin: true });
         } catch (err) {
