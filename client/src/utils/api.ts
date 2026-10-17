@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { useSessionStore } from 'hooks/stores';
 
 const api = axios.create({
-  baseURL: process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : '/api',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
 });
 
