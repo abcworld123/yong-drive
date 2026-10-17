@@ -60,7 +60,6 @@ async function fetchPreview(bucket: string, path: string, name: string) {
   await acquire();
   try {
     const res = await api.post<Blob>('/object/download', form, { responseType: 'blob' });
-    if (!res?.data) return null;  // 인터셉터가 에러를 흡수하면 undefined
     // 서버는 octet-stream으로 내려주므로 확장자 기준 MIME을 다시 붙인다
     const blob = new Blob([res.data], { type: PREVIEW_MIME[fileExt(name)] });
     return URL.createObjectURL(blob);

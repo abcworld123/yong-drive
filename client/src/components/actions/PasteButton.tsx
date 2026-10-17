@@ -3,7 +3,7 @@ import { Button } from 'components/buttons';
 import { useClipboardStore, useHomeStore } from 'hooks/stores';
 import { PasteIcon } from 'svg/icons';
 import { alertError } from 'utils/alerts';
-import api from 'utils/api';
+import api, { isUnauthorized } from 'utils/api';
 import { toastSuccess } from 'utils/toasts';
 import type { ResDefault } from 'types/apis';
 
@@ -25,7 +25,7 @@ export default function PasteButton() {
       toastSuccess(`${msg} 완료!`);
       reload();
     } catch (err) {
-      alertError(err.message);
+      if (!isUnauthorized(err)) alertError(err.message);
       console.error(err);
     }
     useClipboardStore.setState({

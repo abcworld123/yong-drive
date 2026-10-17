@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Bucket } from 'components/objects';
 import styles from 'styles/Layouts.module.scss';
 import { alertError } from 'utils/alerts';
-import api from 'utils/api';
+import api, { isUnauthorized } from 'utils/api';
 import type { NextPage } from 'next';
 import type { ResBucketList } from 'types/apis';
 
@@ -16,15 +16,17 @@ const BucketSelectPage: NextPage = () => {
   }, [router]);
 
   const reload = useCallback(async () => {
-    const { data } = await api.post<ResBucketList>('/bucket/get');
-    if (data.success) {
+    try {
+      const { data } = await api.post<ResBucketList>('/bucket/get');
+      if (!data.success) throw new Error('데이터를 가져오는 중 오류가 발생했습니다.');
       const arr: React.ReactElement[] = [];
       data.buckets.forEach(({ Name: name }) => {
         arr.push(<Bucket key={name} name={name} intoBucket={intoBucket} />);
       });
       setObjects(arr);
-    } else {
-      await alertError('데이터를 가져오는 중 오류가 발생했습니다.');
+    } catch (err) {
+      if (isUnauthorized(err)) return;
+      await alertError(err.message);
       history.back();
     }
   }, [intoBucket]);

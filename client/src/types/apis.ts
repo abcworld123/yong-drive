@@ -102,10 +102,6 @@ export interface ResLogin {
   success: boolean;
 }
 
-export interface ResWithErrMsg extends ResDefault {
-  errMsg?: string;
-}
-
 export interface ResBucketList extends ResDefault {
   buckets?: Bucket[];
 }

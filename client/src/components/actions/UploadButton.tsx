@@ -4,7 +4,7 @@ import { Dropdown } from 'components/buttons';
 import { useHomeStore, useUploadStore } from 'hooks/stores';
 import { UploadIcon } from 'svg/icons';
 import { alertError } from 'utils/alerts';
-import api from 'utils/api';
+import api, { isUnauthorized } from 'utils/api';
 import { toastSuccess } from 'utils/toasts';
 import type { AxiosProgressEvent } from 'axios';
 import type { ResDefault, UploadParams } from 'types/apis';
@@ -45,7 +45,7 @@ export default function UploadButton() {
       setIsUploading(false);
       reload();
     } catch (err) {
-      alertError(err.message);
+      if (!isUnauthorized(err)) alertError(err.message);
       console.error(err);
     } finally {
       setIsUploading(false);

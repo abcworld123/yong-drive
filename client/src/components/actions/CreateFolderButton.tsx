@@ -5,9 +5,9 @@ import { Button } from 'components/buttons';
 import { useHomeStore } from 'hooks/stores';
 import { CreateFolderIcon } from 'svg/icons';
 import { alertError } from 'utils/alerts';
-import api from 'utils/api';
+import api, { isUnauthorized } from 'utils/api';
 import { toastSuccess } from 'utils/toasts';
-import type { CreateFolderBody, ResWithErrMsg } from 'types/apis';
+import type { CreateFolderBody, ResDefault } from 'types/apis';
 
 export default function CreateFolderButton() {
   const [bucket, path, reload] = useHomeStore(useShallow(state => [state.bucket, state.path, state.reload]));
@@ -22,15 +22,12 @@ export default function CreateFolderButton() {
       foldername: value,
     };
     try {
-      const { data } = await api.post<ResWithErrMsg>('/object/create', body);
-      if (!data.success) {
-        if (data.errMsg) throw new Error(data.errMsg);
-        else throw new Error('폴더 생성 오류');
-      }
+      const { data } = await api.post<ResDefault>('/object/create', body);
+      if (!data.success) throw new Error('폴더 생성 오류');
       toastSuccess('폴더 생성 완료!');
       reload();
     } catch (err) {
-      alertError(err.message);
+      if (!isUnauthorized(err)) alertError(err.message);
       console.error(err);
     }
   }, [bucket, path, reload]);

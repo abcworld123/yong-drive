@@ -29,9 +29,13 @@ function App({ Component, pageProps }: AppProps) {
       preConfirm: async (pw: string) => {
         if (!pw.trim()) { Swal.showValidationMessage('비밀번호를 입력해주세요.'); return; }
         pw = SHA256(pw.trim()).toString();
-        const { data } = await api.post<ResLogin>('/auth/login', { pw });
-        if (!data.success) Swal.showValidationMessage('비밀번호가 일치하지 않습니다.');
-        else useSessionStore.setState({ isLogin: true });
+        try {
+          const { data } = await api.post<ResLogin>('/auth/login', { pw });
+          if (!data.success) Swal.showValidationMessage('비밀번호가 일치하지 않습니다.');
+          else useSessionStore.setState({ isLogin: true });
+        } catch (err) {
+          Swal.showValidationMessage(err.message);
+        }
       },
     });
   }, []);

@@ -4,7 +4,7 @@ import { Button } from 'components/buttons';
 import { useCheckBoxStore, useHomeStore } from 'hooks/stores';
 import { DeleteIcon } from 'svg/icons';
 import { alertConfirm, alertError, alertWait } from 'utils/alerts';
-import api from 'utils/api';
+import api, { isUnauthorized } from 'utils/api';
 import { toastSuccess } from 'utils/toasts';
 import type { DeleteBody, ResDefault } from 'types/apis';
 import type { ClipboardButtonProps } from 'types/props';
@@ -32,7 +32,7 @@ export default function DeleteButton({ checkMode }: ClipboardButtonProps) {
       toastSuccess('삭제 완료!');
       reload();
     } catch (err) {
-      alertError(err.message);
+      if (!isUnauthorized(err)) alertError(err.message);
       console.error(err);
     }
   }, [bucket, path, reload]);

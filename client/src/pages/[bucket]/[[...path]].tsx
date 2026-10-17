@@ -9,7 +9,7 @@ import { useCheckBoxStore, useHomeStore, useUploadStore } from 'hooks/stores';
 import styles from 'styles/Layouts.module.scss';
 import Loader from 'svg/Loader';
 import { alertError } from 'utils/alerts';
-import api from 'utils/api';
+import api, { isUnauthorized } from 'utils/api';
 import type { NextPage } from 'next';
 import type { GetBody, ResObjectList } from 'types/apis';
 import type { HomeProps, HomeServerSideContext } from 'types/props';
@@ -46,6 +46,7 @@ const Home: NextPage<HomeProps> = ({ bucket, path }) => {
       useCheckBoxStore.setState({ chkAll: false });
       setIsLoading(false);
     } catch (err) {
+      if (isUnauthorized(err)) return;
       await alertError(err.message);
       history.back();
     }
