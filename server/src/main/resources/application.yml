@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: yong-drive
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+server:
+  reactive:
+    session:
+      cookie:
+        secure: false
+        same-site: lax
+        http-only: true
+
+app:
+  storage:
+    root: ./storage
+  auth:
+    password: ${AUTH_PASSWORD:}
+    cid-ttl-seconds: 2592000
+    cid-length: 32
+  cache:
+    object-list-ttl-seconds: 86400
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://127.0.0.1:3000
