@@ -3,6 +3,9 @@ name: Build Native Binary
 on:
   push:
     branches: [main]
+    paths:
+      - 'server/**'
+      - '.github/workflows/build-native.yml'
   workflow_dispatch:
 
 permissions:
@@ -15,6 +18,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-22.04-arm
+    defaults:
+      run:
+        working-directory: server
     steps:
       - uses: actions/checkout@v6
 
@@ -40,5 +46,5 @@ jobs:
           name: Latest build
           body: |
             Auto-built from `${{ github.sha }}` on ${{ github.ref_name }}.
-          files: yong-drive-server-linux-arm64
+          files: server/yong-drive-server-linux-arm64
           make_latest: 'true'
