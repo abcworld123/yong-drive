@@ -1,5 +1,3 @@
 allowBuilds:
   '@parcel/watcher': true
   unrs-resolver: true
-minimumReleaseAgeExclude:
-  - react-dropzone@20.1.4
