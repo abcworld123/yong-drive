@@ -6,6 +6,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   // reactStrictMode: true,
+  output: 'standalone',
   turbopack: {
     resolveAlias: {
       svg: path.resolve(dirname, './components/assets/svg'),

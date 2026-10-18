@@ -1,0 +1,63 @@
+name: Build Client
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'client/**'
+      - '.github/workflows/build-client.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'client/**'
+      - '.github/workflows/build-client.yml'
+
+jobs:
+  build:
+    # Same arch and Ubuntu release as the Pi, so the bundled sharp binary matches.
+    runs-on: ubuntu-26.04-arm
+    defaults:
+      run:
+        working-directory: client
+    strategy:
+      matrix:
+        node: ['26']
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: latest
+
+      - name: Test node.js ${{ matrix.node }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+          cache-dependency-path: client/pnpm-lock.yaml
+
+      - name: Install packages
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Check production build
+        run: pnpm run build
+
+      # tar keeps pnpm's symlinked node_modules intact; a zipped artifact would flatten them.
+      - name: Package standalone build
+        if: github.event_name == 'push'
+        run: |
+          cp -r public .next/standalone/
+          cp -r .next/static .next/standalone/.next/
+          tar -czf "client-${GITHUB_SHA}.tar.gz" -C .next/standalone .
+
+      - name: Upload artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v7
+        with:
+          path: client/client-${{ github.sha }}.tar.gz
+          archive: false
+          retention-days: 14
+          if-no-files-found: error

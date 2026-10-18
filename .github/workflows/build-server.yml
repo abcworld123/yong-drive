@@ -1,23 +1,24 @@
-name: Build Native Binary
+name: Build Server
 
 on:
   push:
     branches: [main]
     paths:
       - 'server/**'
-      - '.github/workflows/build-native.yml'
+      - '.github/workflows/build-server.yml'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: build-native-${{ github.ref }}
+  group: build-server-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    runs-on: ubuntu-22.04-arm
+    # Same Ubuntu release as the Pi, so the binary's glibc matches.
+    runs-on: ubuntu-26.04-arm
     defaults:
       run:
         working-directory: server
@@ -34,6 +35,20 @@ jobs:
       - name: Build native image
         run: ./gradlew nativeCompile --no-daemon
 
+      # tar keeps the executable bit, which zipped artifacts drop.
+      - name: Package artifact
+        run: tar -czf "server-${GITHUB_SHA}.tar.gz" -C build/native/nativeCompile yong-drive-server
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: server/server-${{ github.sha }}.tar.gz
+          archive: false
+          retention-days: 14
+          if-no-files-found: error
+
+      # The Pi still pulls the rolling `latest` release; drop the next two steps once the
+      # deploy dashboard deploys from the artifact (docs/deploy.md §6).
       - name: Rename binary
         run: |
           mv build/native/nativeCompile/yong-drive-server \
