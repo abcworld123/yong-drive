@@ -45,5 +45,24 @@ class ObjectCacheService(
         else redis.delete(*keys.toTypedArray()).awaitSingle()
     }
 
+    /**
+     * Folder entries carry recursive file counts, sizes and mtimes, so a change under [path]
+     * makes every ancestor listing stale too, not just [path] and its descendants.
+     */
+    suspend fun invalidateTree(bucket: String, path: String) {
+        invalidatePrefix(bucket, path)
+        val ancestors = ancestorPaths(path).map { key(bucket, it) }
+        if (ancestors.isNotEmpty()) {
+            redis.delete(*ancestors.toTypedArray()).awaitSingle()
+        }
+    }
+
+    private fun ancestorPaths(path: String): List<String> {
+        val segments = path.split('/').filter { it.isNotEmpty() }
+        return (0 until segments.size).map { depth ->
+            segments.take(depth).joinToString("") { "$it/" }
+        }
+    }
+
     private fun key(bucket: String, path: String): String = "$bucket/$path"
 }

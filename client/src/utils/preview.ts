@@ -1,4 +1,4 @@
-import api from 'utils/api';
+import { fetchObject } from 'utils/download';
 import { fileExt } from 'utils/tools';
 
 // <img>로 바로 그릴 수 있는 확장자만 미리보기 대상 (tiff, heic 등은 아이콘 유지)
@@ -51,15 +51,9 @@ function putCache(key: string, url: string) {
 }
 
 async function fetchPreview(bucket: string, path: string, name: string) {
-  // 다운로드 엔드포인트는 form-urlencoded 바디만 읽는다 (ObjectController.download)
-  const form = new URLSearchParams();
-  form.append('bucket', bucket);
-  form.append('path', path);
-  form.append('filenames', name);
-
   await acquire();
   try {
-    const res = await api.post<Blob>('/object/download', form, { responseType: 'blob' });
+    const res = await fetchObject<Blob>(bucket, path, name, { responseType: 'blob' });
     // 서버는 octet-stream으로 내려주므로 확장자 기준 MIME을 다시 붙인다
     const blob = new Blob([res.data], { type: PREVIEW_MIME[fileExt(name)] });
     return URL.createObjectURL(blob);

@@ -29,6 +29,9 @@ export interface FolderProps {
   checked: boolean;
   checkMode: boolean;
   intoFolder: (name: string) => void;
+  size?: number;
+  mtime?: number;
+  fileCount?: number;
 }
 
 export interface FileProps {
@@ -37,6 +40,11 @@ export interface FileProps {
   checked: boolean;
   checkMode: boolean;
   size: number;
+  mtime?: number;
+}
+
+export interface ObjectTimeProps {
+  mtime?: number;
 }
 
 export interface DownloaderProps {

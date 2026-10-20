@@ -19,6 +19,6 @@ class UploadService(
     ) {
         val key = "$path$filename"
         storage.writeStream(bucket, key, body)
-        cache.invalidate(bucket, path)
+        cache.invalidateTree(bucket, path)
     }
 }

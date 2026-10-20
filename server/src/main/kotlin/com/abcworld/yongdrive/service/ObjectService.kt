@@ -33,7 +33,7 @@ class ObjectService(
             }
             storage.createFolder(request.bucket, folderKey)
         }
-        cache.invalidate(request.bucket, request.path)
+        cache.invalidateTree(request.bucket, request.path)
     }
 
     suspend fun delete(request: DeleteRequest) {
@@ -41,7 +41,7 @@ class ObjectService(
             val keys = request.objects.map { "${request.path}$it" }
             storage.delete(request.bucket, keys)
         }
-        cache.invalidatePrefix(request.bucket, request.path)
+        cache.invalidateTree(request.bucket, request.path)
     }
 
     suspend fun paste(request: PasteRequest) {
@@ -57,8 +57,8 @@ class ObjectService(
             }
         }
         if (request.mode == PasteRequest.MODE_CUT) {
-            cache.invalidate(request.bucket, request.pathFrom)
+            cache.invalidateTree(request.bucket, request.pathFrom)
         }
-        cache.invalidate(request.bucket, request.pathTo)
+        cache.invalidateTree(request.bucket, request.pathTo)
     }
 }

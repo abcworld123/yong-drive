@@ -129,7 +129,9 @@ export interface Session {
 export interface ObjectInfo {
   type: string;
   name: string;
-  size?: number;
+  size?: number;  // folders: total size of all files inside, recursively
+  mtime?: number;  // epoch millis
+  fileCount?: number;  // folders only, recursive
 }
 
 export interface Bucket {

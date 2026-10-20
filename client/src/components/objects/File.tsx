@@ -1,14 +1,17 @@
 import { memo, useCallback } from 'react';
-import type { ComponentType } from 'react';
+import type { ComponentType, MouseEvent } from 'react';
 import { LongPressEventType, useLongPress } from 'use-long-press';
 import { CheckBox } from 'components/buttons';
+import ObjectTime from 'components/objects/ObjectTime';
 import { useImagePreview } from 'hooks';
+import { useHomeStore } from 'hooks/stores';
 import styles from 'styles/Layouts.module.scss';
 import {
   FileIcon, TextFileIcon, ImageFileIcon, VideoFileIcon, AudioFileIcon,
   PdfFileIcon, WordFileIcon, ExcelFileIcon, PptFileIcon,
   ArchiveFileIcon, CodeFileIcon, FontFileIcon, DatabaseFileIcon,
 } from 'svg/icons';
+import { isTextPreviewable, openTextPreview } from 'utils/textPreview';
 import { convUnit, fileExt } from 'utils/tools';
 import type { FileProps } from 'types/props';
 
@@ -51,7 +54,7 @@ const EXT_ICON_MAP: Record<string, ComponentType> = {
   mdb: DatabaseFileIcon, accdb: DatabaseFileIcon,
 };
 
-function File({ name, check, checked, checkMode, size }: FileProps) {
+function File({ name, check, checked, checkMode, size, mtime }: FileProps) {
   const IconComponent = EXT_ICON_MAP[fileExt(name)] ?? FileIcon;
   const sizeText = convUnit(size);
   const { ref, url, failPreview } = useImagePreview(name, size);
@@ -67,16 +70,19 @@ function File({ name, check, checked, checkMode, size }: FileProps) {
     detect: LongPressEventType.Touch,
   });
 
-  const clickFile = useCallback((target: EventTarget) => {
-    if (target instanceof HTMLLabelElement || target instanceof HTMLInputElement) return;  // isCheckBox
-    if (checkMode) {
+  const clickFile = useCallback((e: MouseEvent) => {
+    if (e.target instanceof HTMLLabelElement || e.target instanceof HTMLInputElement) return;  // isCheckBox
+    if (checkMode || e.ctrlKey || e.metaKey) {
       toggleCheck();
+    } else if (isTextPreviewable(name)) {
+      const { bucket, path } = useHomeStore.getState();
+      openTextPreview(bucket, path, name, size);
     }
-  }, [checkMode, toggleCheck]);
+  }, [checkMode, toggleCheck, name, size]);
 
   return (
     <div>
-      <div ref={ref} className={`${styles.objectIcon} ${checked ? styles.checkedObjectIcon : ''} ${url ? styles.previewObjectIcon : ''} cursor-pointer`} onClick={e => clickFile(e.target)}>
+      <div ref={ref} className={`${styles.objectIcon} ${checked ? styles.checkedObjectIcon : ''} ${url ? styles.previewObjectIcon : ''} cursor-pointer`} onClick={clickFile}>
         <CheckBox checked={checked} toggleCheck={toggleCheck} />
         <div {...longPressBind()} className="grid place-items-center overflow-hidden">
           { url
@@ -88,9 +94,10 @@ function File({ name, check, checked, checkMode, size }: FileProps) {
       <div title={name} className={`${styles.objectName} mt-5`}>
         {name}
       </div>
-      <div title={sizeText} className={`${styles.objectName} mt-2 text-neutral-400`}>
+      <div title={sizeText} className={`${styles.objectName} ${styles.objectMeta} mt-1.5`}>
         {sizeText}
       </div>
+      <ObjectTime mtime={mtime} />
     </div>
   );
 }

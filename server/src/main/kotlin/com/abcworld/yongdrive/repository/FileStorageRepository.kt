@@ -12,15 +12,17 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.stereotype.Repository
+import java.io.IOException
 import java.io.OutputStream
 import java.nio.channels.FileChannel
+import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.exists
-import kotlin.io.path.fileSize
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
@@ -54,13 +56,43 @@ class FileStorageRepository(
         if (!dir.exists() || !dir.isDirectory()) return emptyList()
         return Files.list(dir).use { stream ->
             stream.map { path ->
-                if (path.isDirectory()) {
-                    ObjectInfo(type = ObjectInfo.TYPE_FOLDER, name = "${path.name}/")
+                val attrs = path.readAttributes<BasicFileAttributes>()
+                val mtime = attrs.lastModifiedTime().toMillis()
+                if (attrs.isDirectory) {
+                    val stats = folderStats(path)
+                    ObjectInfo(
+                        type = ObjectInfo.TYPE_FOLDER,
+                        name = "${path.name}/",
+                        size = stats.size,
+                        mtime = mtime,
+                        fileCount = stats.fileCount,
+                    )
                 } else {
-                    ObjectInfo(type = ObjectInfo.TYPE_FILE, name = path.name, size = path.fileSize())
+                    ObjectInfo(type = ObjectInfo.TYPE_FILE, name = path.name, size = attrs.size(), mtime = mtime)
                 }
             }.sorted(compareBy({ if (it.type == ObjectInfo.TYPE_FOLDER) 0 else 1 }, { it.name })).toList()
         }
+    }
+
+    private class FolderStats(var fileCount: Long = 0, var size: Long = 0)
+
+    private fun folderStats(dir: Path): FolderStats {
+        val stats = FolderStats()
+        Files.walkFileTree(dir, object : SimpleFileVisitor<Path>() {
+            override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+                if (attrs.isRegularFile) {
+                    stats.fileCount += 1
+                    stats.size += attrs.size()
+                }
+                return FileVisitResult.CONTINUE
+            }
+
+            // An unreadable entry shouldn't fail the whole listing; it just isn't counted.
+            override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult {
+                return FileVisitResult.CONTINUE
+            }
+        })
+        return stats
     }
 
     fun exists(bucket: String, key: String): Boolean {

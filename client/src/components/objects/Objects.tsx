@@ -10,7 +10,7 @@ function Objects({ check, intoFolder }: ObjectProps) {
   const arr: React.ReactElement[] = [];
   const checkMode = chkSet.size > 0;
 
-  objects.forEach(({ type, name, size }) => {
+  objects.forEach(({ type, name, size, mtime, fileCount }) => {
     if (type === 'folder') {
       arr.push(
         <Folder
@@ -20,6 +20,9 @@ function Objects({ check, intoFolder }: ObjectProps) {
           checked={chkSet.has(name)}
           checkMode={checkMode}
           intoFolder={intoFolder}
+          size={size}
+          mtime={mtime}
+          fileCount={fileCount}
         />,
       );
     } else {
@@ -31,6 +34,7 @@ function Objects({ check, intoFolder }: ObjectProps) {
           checked={chkSet.has(name)}
           checkMode={checkMode}
           size={size}
+          mtime={mtime}
         />,
       );
     }

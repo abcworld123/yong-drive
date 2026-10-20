@@ -7,6 +7,8 @@ data class ObjectInfo(
     val type: String,
     val name: String,
     val size: Long? = null,
+    val mtime: Long? = null,
+    val fileCount: Long? = null,
 ) {
     companion object {
         const val TYPE_FILE = "file"

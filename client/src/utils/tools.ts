@@ -6,6 +6,15 @@ export function convUnit(size: number) {
   return res;
 }
 
+export function formatTime(ms: number) {
+  const d = new Date(ms);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return {
+    date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+  };
+}
+
 export function fileExt(name: string) {
   return name.split('.').pop()?.toLowerCase() ?? '';
 }
