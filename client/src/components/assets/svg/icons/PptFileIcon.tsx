@@ -1,12 +1,13 @@
 import { memo } from 'react';
-import styles from 'styles/Icons.module.scss';
+import FileTypeIcon from './FileTypeIcon';
 
 function PptFileIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className={styles.pptFile}>
-      <path d="M11 44q-1.2 0-2.1-.9Q8 42.2 8 41V7q0-1.2.9-2.1Q9.8 4 11 4h18.05L40 14.95V41q0 1.2-.9 2.1-.9.9-2.1.9Zm16.55-27.7V7H11v34h26V16.3ZM11 7v9.3V7v34V7Z" />
-      <path d="M13 39V31h6v8zm8 0V23h6v16zm8 0V27h6v12z" />
-    </svg>
+    <FileTypeIcon color="#ef7a2f" page="#fceade" fold="#f9caac">
+      <rect x="2.5" y="3.5" width="19" height="13" rx="2" />
+      <path d="M12 16.5v4M8.5 20.5h7" />
+      <path d="M12 6.6v3.6h3.6A3.6 3.6 0 1 1 12 6.6z" fill="currentColor" stroke="none" />
+    </FileTypeIcon>
   );
 }
 

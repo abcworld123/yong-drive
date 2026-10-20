@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { DownloadBody } from './apis';
 import type { GetServerSidePropsContext } from 'next';
 import type { DropzoneOptions } from 'react-dropzone';
@@ -100,4 +101,15 @@ export interface HomeServerSideContext extends GetServerSidePropsContext {
     bucket: string;
     path?: string[];
   };
+}
+
+export interface FolderIconProps {
+  empty?: boolean;
+}
+
+export interface FileTypeIconProps {
+  color: string;
+  page: string;
+  fold: string;
+  children?: ReactNode;
 }

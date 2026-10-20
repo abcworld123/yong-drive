@@ -1,12 +1,12 @@
 import { memo } from 'react';
-import styles from 'styles/Icons.module.scss';
+import FileTypeIcon from './FileTypeIcon';
 
 function ArchiveFileIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className={styles.archiveFile}>
-      <path d="M11 44q-1.2 0-2.1-.9Q8 42.2 8 41V7q0-1.2.9-2.1Q9.8 4 11 4h18.05L40 14.95V41q0 1.2-.9 2.1-.9.9-2.1.9Zm16.55-27.7V7H11v34h26V16.3ZM11 7v9.3V7v34V7Z" />
-      <path d="M17 21h14v5H17zm-2 6h18v5H15zm-2 6h22v6H13z" />
-    </svg>
+    <FileTypeIcon color="#9a6a3a" page="#efe7df" fold="#d7c3b0">
+      <rect x="3" y="4" width="18" height="5" rx="1.4" />
+      <path d="M4.8 9v9.2A1.8 1.8 0 0 0 6.6 20h10.8a1.8 1.8 0 0 0 1.8-1.8V9M10 13h4" />
+    </FileTypeIcon>
   );
 }
 

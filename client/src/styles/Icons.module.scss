@@ -3,88 +3,9 @@
   height: 128px;
 }
 
-.folder {
+.typeIcon {
   width: 88px;
   height: 88px;
-  fill: #f9cd52;
-}
-
-.file {
-  width: 88px;
-  height: 88px;
-  fill: #707070;
-}
-
-.textFile {
-  width: 88px;
-  height: 88px;
-  fill: #707070;
-}
-
-.imageFile {
-  width: 88px;
-  height: 88px;
-  fill: #4a90d9;
-}
-
-.videoFile {
-  width: 88px;
-  height: 88px;
-  fill: #8b5cf6;
-}
-
-.audioFile {
-  width: 88px;
-  height: 88px;
-  fill: #f97316;
-}
-
-.pdfFile {
-  width: 88px;
-  height: 88px;
-  fill: #ef4444;
-}
-
-.wordFile {
-  width: 88px;
-  height: 88px;
-  fill: #2563eb;
-}
-
-.excelFile {
-  width: 88px;
-  height: 88px;
-  fill: #22c55e;
-}
-
-.pptFile {
-  width: 88px;
-  height: 88px;
-  fill: #f43f5e;
-}
-
-.archiveFile {
-  width: 88px;
-  height: 88px;
-  fill: #d97706;
-}
-
-.codeFile {
-  width: 88px;
-  height: 88px;
-  fill: #64748b;
-}
-
-.fontFile {
-  width: 88px;
-  height: 88px;
-  fill: #ec4899;
-}
-
-.databaseFile {
-  width: 88px;
-  height: 88px;
-  fill: #06b6d4;
 }
 
 .button {
@@ -110,28 +31,7 @@
     height: 96px;
   }
 
-  .folder {
-    width: 70px;
-    height: 70px;
-  }
-
-  .file {
-    width: 70px;
-    height: 70px;
-  }
-
-  .textFile,
-  .imageFile,
-  .videoFile,
-  .audioFile,
-  .pdfFile,
-  .wordFile,
-  .excelFile,
-  .pptFile,
-  .archiveFile,
-  .codeFile,
-  .fontFile,
-  .databaseFile {
+  .typeIcon {
     width: 70px;
     height: 70px;
   }

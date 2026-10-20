@@ -36,7 +36,7 @@ function Folder({ name, check, checked, checkMode, intoFolder, size, mtime, file
       <div className={`${styles.objectIcon} ${checked ? styles.checkedObjectIcon : ''} cursor-pointer`} onClick={clickFolder}>
         <CheckBox checked={checked} toggleCheck={toggleCheck} />
         <div {...longPressBind()} className="grid place-items-center">
-          <FolderIcon />
+          <FolderIcon empty={fileCount === 0} />
         </div>
       </div>
       <div title={name.slice(0, -1)} className={`${styles.objectName} mt-5`}>

@@ -1,12 +1,12 @@
 import { memo } from 'react';
-import styles from 'styles/Icons.module.scss';
+import FileTypeIcon from './FileTypeIcon';
 
 function ExcelFileIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className={styles.excelFile}>
-      <path d="M11 44q-1.2 0-2.1-.9Q8 42.2 8 41V7q0-1.2.9-2.1Q9.8 4 11 4h18.05L40 14.95V41q0 1.2-.9 2.1-.9.9-2.1.9Zm16.55-27.7V7H11v34h26V16.3ZM11 7v9.3V7v34V7Z" />
-      <path d="M13 21h9v6H13zm10 0h12v6H23zm-10 7h9v5H13zm10 0h12v5H23zm-10 6h9v5H13zm10 0h12v5H23z" />
-    </svg>
+    <FileTypeIcon color="#1e9b5a" page="#dbefe5" fold="#a5d7bd">
+      <rect x="3.5" y="4" width="17" height="16" rx="2.2" />
+      <path d="M3.5 9.8h17M3.5 14.6h17M10 4v16" />
+    </FileTypeIcon>
   );
 }
 

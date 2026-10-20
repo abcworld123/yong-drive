@@ -1,14 +1,12 @@
 import { memo } from 'react';
-import styles from 'styles/Icons.module.scss';
+import FileTypeIcon from './FileTypeIcon';
 
 function DatabaseFileIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className={styles.databaseFile}>
-      <path d="M11 44q-1.2 0-2.1-.9Q8 42.2 8 41V7q0-1.2.9-2.1Q9.8 4 11 4h18.05L40 14.95V41q0 1.2-.9 2.1-.9.9-2.1.9Zm16.55-27.7V7H11v34h26V16.3ZM11 7v9.3V7v34V7Z" />
-      <rect x="15" y="21" width="18" height="5" rx="2.5" />
-      <rect x="15" y="28" width="18" height="5" rx="2.5" />
-      <rect x="15" y="35" width="18" height="5" rx="2.5" />
-    </svg>
+    <FileTypeIcon color="#0ea5a0" page="#d8f1f0" fold="#9fdbd9">
+      <ellipse cx="12" cy="6" rx="7" ry="2.6" />
+      <path d="M5 6v12c0 1.45 3.1 2.6 7 2.6s7-1.15 7-2.6V6M5 12c0 1.45 3.1 2.6 7 2.6s7-1.15 7-2.6" />
+    </FileTypeIcon>
   );
 }
 
