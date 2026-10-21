@@ -21,7 +21,6 @@ import org.springframework.security.web.server.context.WebSessionServerSecurityC
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.reactive.CorsConfigurationSource
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
-import reactor.core.publisher.Mono
 
 @Configuration
 @EnableWebFluxSecurity
@@ -70,7 +69,11 @@ class SecurityConfig {
         val cidFilter = AuthenticationWebFilter(cidAuthenticationManager).apply {
             setServerAuthenticationConverter(cidAuthenticationConverter)
             setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-            setAuthenticationFailureHandler { _, _ -> Mono.empty() }
+            // A stale cid (expired or wiped from Redis) must fall through as anonymous.
+            // The failure handler owns the response, so not continuing the chain ends it as an empty 200.
+            setAuthenticationFailureHandler { webFilterExchange, _ ->
+                webFilterExchange.chain.filter(webFilterExchange.exchange)
+            }
         }
 
         return http
