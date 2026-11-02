@@ -115,6 +115,7 @@
 
 .dropdownContainer {
   position: absolute;
+  z-index: 10;
   background-color: white;
   transition: opacity 250ms;
   border-radius: 4px;

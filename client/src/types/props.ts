@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import type { DownloadBody } from './apis';
 import type { GetServerSidePropsContext } from 'next';
 import type { DropzoneOptions } from 'react-dropzone';
 
@@ -46,10 +45,6 @@ export interface FileProps {
 
 export interface ObjectTimeProps {
   mtime?: number;
-}
-
-export interface DownloaderProps {
-  body: DownloadBody;
 }
 
 export interface ButtonProps {

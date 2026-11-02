@@ -1,43 +1,42 @@
-import { useCallback, useState } from 'react';
+import { useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
-import { Button } from 'components/buttons';
-import { Downloader } from 'components/utils';
+import { Button, Dropdown } from 'components/buttons';
 import { useCheckBoxStore, useHomeStore } from 'hooks/stores';
 import { DownloadIcon } from 'svg/icons';
-import type { DownloadBody } from 'types/apis';
-import type { ClipboardButtonProps } from 'types/props';
+import { downloadEach, downloadObjects } from 'utils/download';
+import type { ClipboardButtonProps, DropdownItem } from 'types/props';
 
 export default function DownloadButton({ checkMode }: ClipboardButtonProps) {
   const [bucket, path] = useHomeStore(useShallow(state => [state.bucket, state.path]));
-  const [downloadBody, setDownloadBody] = useState<DownloadBody>(null);
+  const multiple = useCheckBoxStore(state => state.chkSet.size > 1);
 
-  // download
-  const downloadObject = useCallback(async () => {
-    const { chkSet } = useCheckBoxStore.getState();
-    const filenames = [...chkSet];
-    const body: DownloadBody = {
-      bucket: bucket,
-      path: path,
-      filenames: filenames,
-    };
-    try {
-      setDownloadBody(body);
-      // todo iframe post 500 error?
-    } catch (err) {
-      console.error(err);
-    }
+  const menuItems: DropdownItem[] = useMemo(() => {
+    const checked = () => [...useCheckBoxStore.getState().chkSet];
+    return [
+      { name: '압축해서 받기', action: () => downloadObjects(bucket, path, checked()) },
+      { name: '개별로 받기', action: () => downloadEach(bucket, path, checked()) },
+    ];
   }, [bucket, path]);
 
-  return (
-    <>
-      <Button
+  if (multiple) {
+    return (
+      <Dropdown
+        id="download"
+        items={menuItems}
         icon={<DownloadIcon />}
         text="다운로드"
-        className={checkMode ? '' : 'hidden'}
-        onClick={downloadObject}
         responsive
       />
-      <Downloader body={downloadBody} />
-    </>
+    );
+  }
+
+  return (
+    <Button
+      icon={<DownloadIcon />}
+      text="다운로드"
+      className={checkMode ? '' : 'hidden'}
+      onClick={() => downloadObjects(bucket, path, [...useCheckBoxStore.getState().chkSet])}
+      responsive
+    />
   );
 }
