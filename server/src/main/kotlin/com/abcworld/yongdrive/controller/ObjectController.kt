@@ -8,6 +8,7 @@ import com.abcworld.yongdrive.dto.request.PasteRequest
 import com.abcworld.yongdrive.dto.response.ApiResponse
 import com.abcworld.yongdrive.service.DownloadService
 import com.abcworld.yongdrive.service.ObjectService
+import com.abcworld.yongdrive.service.PasteService
 import com.abcworld.yongdrive.service.UploadService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -29,6 +30,7 @@ class ObjectController(
     private val objectService: ObjectService,
     private val uploadService: UploadService,
     private val downloadService: DownloadService,
+    private val pasteService: PasteService,
 ) {
 
     @PostMapping("/get")
@@ -47,9 +49,15 @@ class ObjectController(
         return ApiResponse.success()
     }
 
+    @PostMapping("/paste/conflicts")
+    suspend fun pasteConflicts(@RequestBody request: PasteRequest): ApiResponse {
+        val check = pasteService.check(request)
+        return ApiResponse.pasteCheck(check.conflicts, check.missing)
+    }
+
     @PostMapping("/paste")
     suspend fun paste(@RequestBody request: PasteRequest): ApiResponse {
-        objectService.paste(request)
+        pasteService.paste(request)
         return ApiResponse.success()
     }
 

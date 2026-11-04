@@ -3,7 +3,6 @@ package com.abcworld.yongdrive.service
 import com.abcworld.yongdrive.dto.request.CreateFolderRequest
 import com.abcworld.yongdrive.dto.request.DeleteRequest
 import com.abcworld.yongdrive.dto.request.GetObjectsRequest
-import com.abcworld.yongdrive.dto.request.PasteRequest
 import com.abcworld.yongdrive.entity.ObjectInfo
 import com.abcworld.yongdrive.exception.ConflictException
 import com.abcworld.yongdrive.repository.FileStorageRepository
@@ -42,23 +41,5 @@ class ObjectService(
             storage.delete(request.bucket, keys)
         }
         cache.invalidateTree(request.bucket, request.path)
-    }
-
-    suspend fun paste(request: PasteRequest) {
-        withContext(Dispatchers.IO) {
-            for (key in request.objects) {
-                val srcKey = "${request.pathFrom}$key"
-                val dstKey = "${request.pathTo}$key"
-                storage.copy(request.bucket, srcKey, dstKey)
-            }
-            if (request.mode == PasteRequest.MODE_CUT) {
-                val srcKeys = request.objects.map { "${request.pathFrom}$it" }
-                storage.delete(request.bucket, srcKeys)
-            }
-        }
-        if (request.mode == PasteRequest.MODE_CUT) {
-            cache.invalidateTree(request.bucket, request.pathFrom)
-        }
-        cache.invalidateTree(request.bucket, request.pathTo)
     }
 }

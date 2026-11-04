@@ -1,13 +1,14 @@
 import { create } from 'zustand';
+import type { PasteMode } from 'types/apis';
 
 interface ClipboardStoreState {
   bucket: string;
   pathFrom: string;
   objects: string[];
-  mode: string;
+  mode: PasteMode | null;
 }
 
-const useClipboardStore = create<ClipboardStoreState>()((set) => ({
+const useClipboardStore = create<ClipboardStoreState>()(() => ({
   bucket: '',
   pathFrom: '',
   objects: [],

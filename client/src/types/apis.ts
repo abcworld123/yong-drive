@@ -51,12 +51,18 @@ export interface DownloadRecursiveParams {
   filenames: string[];
 }
 
+export type PasteMode = 'cut' | 'copy';
+
+export type ConflictResolution = 'overwrite' | 'skip' | 'rename';
+
 export interface PasteBody {
   bucket: string;
+  bucketTo: string;
   pathFrom: string;
   pathTo: string;
   objects: string[];
-  mode: string;
+  mode: PasteMode;
+  resolutions?: Record<string, ConflictResolution>;
 }
 
 // request types
@@ -108,6 +114,17 @@ export interface ResBucketList extends ResDefault {
 
 export interface ResObjectList extends ResDefault {
   objects?: ObjectInfo[];
+}
+
+export interface PasteConflict {
+  name: string;
+  src: ObjectInfo;
+  dst: ObjectInfo;
+}
+
+export interface ResPasteConflicts extends ResDefault {
+  conflicts?: PasteConflict[];
+  missing?: string[];
 }
 
 // express default

@@ -16,7 +16,9 @@ import java.io.IOException
 import java.io.OutputStream
 import java.nio.channels.FileChannel
 import java.nio.file.FileVisitResult
+import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
+import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardCopyOption
@@ -55,23 +57,26 @@ class FileStorageRepository(
         val dir = PathUtils.resolveSafe(storageProperties.root, bucket, prefix)
         if (!dir.exists() || !dir.isDirectory()) return emptyList()
         return Files.list(dir).use { stream ->
-            stream.map { path ->
-                val attrs = path.readAttributes<BasicFileAttributes>()
-                val mtime = attrs.lastModifiedTime().toMillis()
-                if (attrs.isDirectory) {
-                    val stats = folderStats(path)
-                    ObjectInfo(
-                        type = ObjectInfo.TYPE_FOLDER,
-                        name = "${path.name}/",
-                        size = stats.size,
-                        mtime = mtime,
-                        fileCount = stats.fileCount,
-                    )
-                } else {
-                    ObjectInfo(type = ObjectInfo.TYPE_FILE, name = path.name, size = attrs.size(), mtime = mtime)
-                }
-            }.sorted(compareBy({ if (it.type == ObjectInfo.TYPE_FOLDER) 0 else 1 }, { it.name })).toList()
+            stream.map { objectInfo(it) }
+                .sorted(compareBy({ if (it.type == ObjectInfo.TYPE_FOLDER) 0 else 1 }, { it.name }))
+                .toList()
         }
+    }
+
+    fun objectInfo(path: Path): ObjectInfo {
+        val attrs = path.readAttributes<BasicFileAttributes>()
+        val mtime = attrs.lastModifiedTime().toMillis()
+        if (attrs.isDirectory) {
+            val stats = folderStats(path)
+            return ObjectInfo(
+                type = ObjectInfo.TYPE_FOLDER,
+                name = "${path.name}/",
+                size = stats.size,
+                mtime = mtime,
+                fileCount = stats.fileCount,
+            )
+        }
+        return ObjectInfo(type = ObjectInfo.TYPE_FILE, name = path.name, size = attrs.size(), mtime = mtime)
     }
 
     private class FolderStats(var fileCount: Long = 0, var size: Long = 0)
@@ -98,6 +103,19 @@ class FileStorageRepository(
     fun exists(bucket: String, key: String): Boolean {
         val path = PathUtils.resolveSafe(storageProperties.root, bucket, key)
         return path.exists()
+    }
+
+    fun resolve(bucket: String, key: String): Path {
+        return PathUtils.resolveSafe(storageProperties.root, bucket, key)
+    }
+
+    // NOFOLLOW_LINKS so a dangling symlink still counts as an occupied name.
+    fun exists(path: Path): Boolean {
+        return Files.exists(path, LinkOption.NOFOLLOW_LINKS)
+    }
+
+    fun isDirectory(path: Path): Boolean {
+        return path.isDirectory()
     }
 
     fun createFolder(bucket: String, key: String): Boolean {
@@ -166,16 +184,28 @@ class FileStorageRepository(
 
     fun delete(bucket: String, keys: List<String>) {
         for (key in keys) {
-            val path = PathUtils.resolveSafe(storageProperties.root, bucket, key)
-            if (!path.exists()) continue
-            if (path.isDirectory()) deleteRecursive(path) else Files.deleteIfExists(path)
+            delete(PathUtils.resolveSafe(storageProperties.root, bucket, key))
         }
     }
 
-    fun copy(bucket: String, srcKey: String, dstKey: String) {
-        val src = PathUtils.resolveSafe(storageProperties.root, bucket, srcKey)
-        val dst = PathUtils.resolveSafe(storageProperties.root, bucket, dstKey)
-        if (!src.exists()) return
+    fun delete(path: Path) {
+        if (!exists(path)) return
+        if (path.isDirectory()) deleteRecursive(path) else Files.deleteIfExists(path)
+    }
+
+    /** The caller must make sure [dst] is free; rename(2) would silently replace an existing file. */
+    fun move(src: Path, dst: Path) {
+        Files.createDirectories(dst.parent)
+        try {
+            Files.move(src, dst, StandardCopyOption.ATOMIC_MOVE)
+        } catch (_: AtomicMoveNotSupportedException) {
+            // src and dst are on different filesystems (a mount inside the storage root), so rename(2) fails with EXDEV.
+            copy(src, dst)
+            delete(src)
+        }
+    }
+
+    fun copy(src: Path, dst: Path) {
         if (src.isDirectory()) {
             copyRecursive(src, dst)
         } else {
