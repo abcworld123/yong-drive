@@ -37,7 +37,7 @@ fi
 
 if (( needs_build )); then
     echo "==> compiling"
-    ./gradlew --configuration-cache -q classes
+    ./gradlew -q classes
     touch "$STAMP"
 else
     echo "==> up to date, skipping gradle"
@@ -82,7 +82,7 @@ fi
 # continuous compile running next to it. It shares the terminal, so compile errors show up here.
 if [[ -z "${NO_WATCH:-}" ]]; then
     echo "==> starting continuous compile (DevTools restarts the app on change)"
-    ./gradlew --configuration-cache -q -t classes &
+    ./gradlew -q -t classes &
     watch_pid=$!
     trap 'kill "$watch_pid" 2>/dev/null || true' EXIT
 fi
