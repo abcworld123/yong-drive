@@ -9,12 +9,17 @@ import com.abcworld.yongdrive.support.tree
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import java.nio.file.Path
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.attribute.FileTime
 import kotlin.io.path.exists
+import kotlin.io.path.readAttributes
 import kotlin.io.path.readText
+import kotlin.io.path.setLastModifiedTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -62,6 +67,19 @@ class FileStorageRepositoryTest {
         assertEquals(ObjectInfo.TYPE_FOLDER, docs.type)
         assertEquals(2L, docs.fileCount)
         assertEquals(8L, docs.size)
+    }
+
+    @Test
+    fun `folder time is its creation time and ignores changes inside it`() {
+        val docs = bucket.dir("docs")
+        val created = docs.readAttributes<BasicFileAttributes>().creationTime()
+        docs.file("a.txt")
+        docs.setLastModifiedTime(FileTime.fromMillis(created.toMillis() + 86_400_000))
+        assumeTrue(
+            docs.readAttributes<BasicFileAttributes>().creationTime() == created,
+            "filesystem has no birth time",
+        )
+        assertEquals(created.toMillis(), storage.listObjects("b", "").single().mtime)
     }
 
     @Test

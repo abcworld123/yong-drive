@@ -65,18 +65,25 @@ class FileStorageRepository(
 
     fun objectInfo(path: Path): ObjectInfo {
         val attrs = path.readAttributes<BasicFileAttributes>()
-        val mtime = attrs.lastModifiedTime().toMillis()
         if (attrs.isDirectory) {
             val stats = folderStats(path)
+            // A directory's mtime moves whenever an entry is added or removed inside it, so folders
+            // show their creation (birth) time instead. Where the filesystem has no birth time,
+            // the JDK returns lastModifiedTime here.
             return ObjectInfo(
                 type = ObjectInfo.TYPE_FOLDER,
                 name = "${path.name}/",
                 size = stats.size,
-                mtime = mtime,
+                mtime = attrs.creationTime().toMillis(),
                 fileCount = stats.fileCount,
             )
         }
-        return ObjectInfo(type = ObjectInfo.TYPE_FILE, name = path.name, size = attrs.size(), mtime = mtime)
+        return ObjectInfo(
+            type = ObjectInfo.TYPE_FILE,
+            name = path.name,
+            size = attrs.size(),
+            mtime = attrs.lastModifiedTime().toMillis(),
+        )
     }
 
     private class FolderStats(var fileCount: Long = 0, var size: Long = 0)
