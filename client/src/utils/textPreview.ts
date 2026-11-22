@@ -11,7 +11,7 @@ export function isTextPreviewable(name: string) {
   return TEXT_EXTS.has(fileExt(name));
 }
 
-function decodeText(buf: ArrayBuffer) {
+export function decodeText(buf: ArrayBuffer) {
   try {
     // stream: true keeps a multi-byte char cut off by the size cap from failing the UTF-8 check.
     return new TextDecoder('utf-8', { fatal: true }).decode(buf, { stream: true });
